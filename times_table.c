@@ -6,7 +6,7 @@ int main(void) {
     printf("Enter a number: ");
     scanf("%d", &number);
 
-    for (int i = 1; i <= 12; i++) {
+    for (int i = 1; i <= 5; i++) {
         printf("%d x %d = %d\n", number, i, number * i);
     }
 
