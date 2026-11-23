@@ -1,0 +1,23 @@
+.*.o
+*.obj
+
+*.a
+*.lib
+*.so
+*.dll*.out
+*.map
+*.pdb
+*.o
+*.save
+*.txt
+main
+
+
+.vscode/
+    
+# Dungeon Master generated executables
+/Terminal-Design/Store/shop_beta_terminal_design
+/Combat_System/Shop/shop_item
+
+# Build directory
+/build/
