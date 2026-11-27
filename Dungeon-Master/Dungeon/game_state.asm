@@ -10,6 +10,8 @@
 // can start exploring the dungeon again.
 //
 
+.equ LAST_ROOM, 6       // Entrance, Floors 1-5, Boss Lair
+
 .section .data
 .align 2
 
@@ -23,9 +25,7 @@ current_room:
 //
 // Room 0 is the entrance, so it starts as cleared.
 room_cleared:
-    .word 1
-    .word 0
-    .word 0
+    .word 1, 0, 0, 0, 0, 0, 0
 
 .section .text
 
@@ -61,12 +61,13 @@ dungeon_reset:
     mov w0, #1
     str w0, [x1]
 
-    // Reset the Battle Chamber
-    mov w0, #0
-    str w0, [x1, #4]
-
-    // Reset the Boss Room
-    str w0, [x1, #8]
+    // Reset Floors 1-5 and the Boss Lair to "not cleared"
+    mov w2, #1
+reset_room_loop:
+    str wzr, [x1, w2, uxtw #2]
+    add w2, w2, #1
+    cmp w2, #LAST_ROOM
+    b.le reset_room_loop
 
     ret
 
@@ -96,11 +97,11 @@ dungeon_get_current_room:
 //
 
 dungeon_set_current_room:
-    // We only have rooms 0, 1, and 2 right now
+    // Valid rooms are 0 (Entrance) to LAST_ROOM (Boss Lair)
     cmp w0, #0
     b.lt set_room_invalid
 
-    cmp w0, #2
+    cmp w0, #LAST_ROOM
     b.gt set_room_invalid
 
     // Save the new room number
@@ -134,7 +135,7 @@ dungeon_is_room_cleared:
     cmp w0, #0
     b.lt check_room_invalid
 
-    cmp w0, #2
+    cmp w0, #LAST_ROOM
     b.gt check_room_invalid
 
     // Find the room's progress in the table
@@ -164,7 +165,7 @@ dungeon_mark_room_cleared:
     cmp w0, #0
     b.lt mark_room_invalid
 
-    cmp w0, #2
+    cmp w0, #LAST_ROOM
     b.gt mark_room_invalid
 
     // Find where this room's progress is stored
@@ -189,8 +190,8 @@ mark_room_invalid:
 // dungeon_is_complete
 //
 // Checks whether the player has defeated the final boss.
-// Since room 2 is our boss room, clearing it means
-// the dungeon has been completed.
+// The Boss Lair (room 6) comes after Floor 5, so clearing it
+// means the dungeon has been completed.
 //
 // Returns:
 // 1 = Dungeon completed
@@ -202,7 +203,7 @@ dungeon_is_complete:
     adrp x1, room_cleared
     add x1, x1, :lo12:room_cleared
 
-    // Check whether the boss room is cleared
-    ldr w0, [x1, #8]
+    // Check whether the Boss Lair is cleared
+    ldr w0, [x1, #(LAST_ROOM * 4)]
 
     ret

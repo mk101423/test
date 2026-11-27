@@ -84,5 +84,4 @@ move_blocked:
 move_finished:
     // Restore the stack before returning
     ldp x29, x30, [sp], #32
-    
-    
+    ret
